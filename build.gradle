@@ -1,0 +1,101 @@
+plugins {
+  id 'com.github.sherter.google-java-format' version '0.8'
+}
+apply plugin: 'maven'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+repositories {
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+    maven { url "https://dl.bintray.com/ethereum/maven/" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    mavenCentral()
+}
+
+googleJavaFormat {
+  options style: 'AOSP'
+}
+
+check.dependsOn.remove(test)
+check.dependsOn.remove(verifyGoogleJavaFormat)
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    // compile group: "org.fisco-bcos", name: "web3sdk", version: "2.1.2", changing: true
+	compile group: 'org.fisco-bcos', name: 'web3sdk', version: '2.1.0'
+    compile group: 'org.slf4j', name:'slf4j-log4j12', version:'1.7.25'
+    compile group: 'org.jline', name: 'jline', version: '3.12.0'
+    compile group: 'io.bretty', name: 'console-table-builder', version: '1.2'
+    compile group: 'com.github.jsqlparser', name: 'jsqlparser', version: '2.0'
+    testCompile group: 'junit', name: 'junit', version: '4.1'
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+configurations {
+    all*.exclude group: 'org.java-websocket', module: 'Java-WebSocket'
+    all*.exclude group: 'org.antlr', module: '*'
+    all*.exclude group: 'de.vandermeer', module: '*'
+    all*.exclude group: 'net.bytebuddy', module: 'byte-buddy'
+    all*.exclude group: 'commons-configuration', module: 'commons-configuration'
+    all*.exclude group: 'org.apache.commons', module: 'commons-lang'
+    all*.exclude group: 'com.alibaba', module: 'druid'
+    all*.exclude group: 'com.google.guava', module: 'guava'
+    all*.exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    all*.exclude group: 'org.mockito', module: 'mockito-core'
+    all*.exclude group: 'io.reactivex', module: 'rxjava'
+  //  all*.exclude group: 'org.ethereum', module: 'solcJ-all'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+    }
+}
+
+jar {
+    destinationDir file('dist/apps')
+    archiveName project.name + '.jar'
+    exclude '**/*.xml'
+    exclude '**/*.properties'
+    exclude '**/*.crt'
+    exclude '**/*.key'
+
+    doLast {
+		copy {
+			from configurations.runtime
+			into 'dist/lib'
+		}
+		copy {
+			from file('src/main/resources/applicationContext-sample.xml')
+      		from file('src/main/resources/log4j.properties')
+			into 'dist/conf'
+		}
+		copy {
+			from file('tools/start.sh')
+			from file('tools/replace_solc_jar.sh')
+			from file('tools/get_account.sh')
+			from file('tools/sol2java.sh')
+			into 'dist/'
+		}
+		copy {
+			from file('src/main/resources/contract/')
+			into 'dist/contracts/solidity/'
+		}
+		new File('dist/contracts/console').mkdirs()
+		new File('dist/contracts/sdk').mkdirs()
+	}
+}
