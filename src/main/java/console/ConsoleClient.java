@@ -103,6 +103,8 @@ public class ConsoleClient {
                     consoleInitializer.close();
                     break;
                 }
+
+                //switch中的方法逻辑：  先进行参数个数判断  然后进行各个相对应的逻辑的调用
                 switch (params[0]) {
                     //打印帮助信息
                     case "help":
@@ -113,22 +115,26 @@ public class ConsoleClient {
                     case "deploy":
                         contractFace.deploy(params);
                         break;
-
                     case "getDeployLog":
                         contractFace.getDeployLog(params);
                         break;
+                        //调用合约
                     case "call":
                         contractFace.call(params);
                         break;
+                        //通过CNS部署合约
                     case "deployByCNS":
                         contractFace.deployByCNS(params);
                         break;
+                        //通过CNS调用合约
                     case "callByCNS":
                         contractFace.callByCNS(params);
                         break;
+                        //通过CNS查询合约
                     case "queryCNS":
                         contractFace.queryCNS(params);
                         break;
+                        //切换群组
                     case "switch":
                     case "s":
                         consoleInitializer.switchGroupID(params);

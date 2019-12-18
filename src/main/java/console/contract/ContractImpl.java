@@ -78,16 +78,21 @@ public class ContractImpl implements ContractFace {
             HelpInfo.deployHelp();
             return;
         }
+        //获取合约名称
         String name = params[1];
         try {
+            //编译合约
             Class<?> contractClass = ContractClassFactory.compileContract(name);
             RemoteCall<?> remoteCall =
                     ContractClassFactory.handleDeployParameters(
                             web3j, credentials, gasProvider, contractClass, params, 2);
+            //发送部署调用命令
             Contract contract = (Contract) remoteCall.send();
             String contractAddress = contract.getContractAddress();
             System.out.println("contract address: " + contractAddress);
             System.out.println();
+
+            //为什么又要重新获取一次地址
             contractAddress = contract.getContractAddress();
             writeLog(name, contractAddress);
         } catch (Exception e) {
@@ -100,6 +105,7 @@ public class ContractImpl implements ContractFace {
         }
     }
 
+    //写日志
     private synchronized void writeLog(String contractName, String contractAddress) {
         contractName = ContractClassFactory.removeSolPostfix(contractName);
         BufferedReader reader = null;
@@ -168,6 +174,8 @@ public class ContractImpl implements ContractFace {
         }
     }
 
+
+    //获取部署日志
     public void getDeployLog(String[] params) throws Exception {
 
         if (params.length > 2) {
