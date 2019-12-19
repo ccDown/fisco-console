@@ -1,11 +1,10 @@
 package console.common;
 
-import static org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler.Options.ABI;
-import static org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler.Options.BIN;
-import static org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler.Options.INTERFACE;
-import static org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler.Options.METADATA;
+import org.apache.commons.io.FileUtils;
+import org.fisco.bcos.web3j.codegen.SolidityFunctionWrapperGenerator;
+import org.fisco.bcos.web3j.solidity.compiler.CompilationResult;
+import org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler;
 
-import console.exception.CompileSolidityException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -15,10 +14,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.commons.io.FileUtils;
-import org.fisco.bcos.web3j.codegen.SolidityFunctionWrapperGenerator;
-import org.fisco.bcos.web3j.solidity.compiler.CompilationResult;
-import org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler;
+
+import console.exception.CompileSolidityException;
+
+import static org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler.Options.ABI;
+import static org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler.Options.BIN;
+import static org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler.Options.INTERFACE;
+import static org.fisco.bcos.web3j.solidity.compiler.SolidityCompiler.Options.METADATA;
 
 public class ConsoleUtils {
 
@@ -26,6 +28,8 @@ public class ConsoleUtils {
     public static final String JAVA_PATH = "contracts/sdk/java/";
     public static final String ABI_PATH = "contracts/sdk/abi/";
     public static final String BIN_PATH = "contracts/sdk/bin/";
+
+    public static final String CLASS_PATH = JAVA_PATH+"classess/";
 
     public static void printJson(String jsonStr) {
         System.out.println(formatJson(jsonStr));
@@ -179,20 +183,19 @@ public class ConsoleUtils {
         address.setAddress(newAddessStr);
     }
 
+    //测试本地生成java.class 、bin、abi
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Please provide a package name.");
-            return;
-        }
+
+        String solName = "HelloWorld.sol";
 
         File solFileList = new File(SOLIDITY_PATH);
         String tempDirPath = new File(JAVA_PATH).getAbsolutePath();
         try {
-            compileSolToJava("*", tempDirPath, args[0], solFileList, ABI_PATH, BIN_PATH);
+            compileSolToJava(solName, tempDirPath, CLASS_PATH, solFileList, ABI_PATH, BIN_PATH);
             System.out.println(
                     "\nCompile solidity contract files to java contract files successfully!");
         } catch (IOException e) {
-            System.out.print(e.getMessage());
+            System.out.print("error:"+e.getMessage());
         }
     }
 
